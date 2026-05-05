@@ -31,10 +31,20 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (*taskdomain.Ta
 		Title:       normalized.Title,
 		Description: normalized.Description,
 		Status:      normalized.Status,
+		Recurrence:  normalized.Recurrence,
 	}
+
 	now := s.now()
 	model.CreatedAt = now
 	model.UpdatedAt = now
+
+	if model.Recurrence != nil {
+		model.Recurrence.Normalize()
+	}
+
+	if err := model.Validate(); err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrInvalidInput, err.Error())
+	}
 
 	created, err := s.repo.Create(ctx, model)
 	if err != nil {
@@ -68,6 +78,15 @@ func (s *Service) Update(ctx context.Context, id int64, input UpdateInput) (*tas
 		Description: normalized.Description,
 		Status:      normalized.Status,
 		UpdatedAt:   s.now(),
+		Recurrence:  normalized.Recurrence,
+	}
+
+	if model.Recurrence != nil {
+		model.Recurrence.Normalize()
+	}
+
+	if err := model.Validate(); err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrInvalidInput, err.Error())
 	}
 
 	updated, err := s.repo.Update(ctx, model)
@@ -106,6 +125,10 @@ func validateCreateInput(input CreateInput) (CreateInput, error) {
 		return CreateInput{}, fmt.Errorf("%w: invalid status", ErrInvalidInput)
 	}
 
+	if input.Recurrence != nil {
+		input.Recurrence.Normalize()
+	}
+
 	return input, nil
 }
 
@@ -119,6 +142,10 @@ func validateUpdateInput(input UpdateInput) (UpdateInput, error) {
 
 	if !input.Status.Valid() {
 		return UpdateInput{}, fmt.Errorf("%w: invalid status", ErrInvalidInput)
+	}
+
+	if input.Recurrence != nil {
+		input.Recurrence.Normalize()
 	}
 
 	return input, nil

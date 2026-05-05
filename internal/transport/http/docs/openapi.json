@@ -3,7 +3,7 @@
   "info": {
     "title": "Task Service API",
     "version": "1.0.0",
-    "description": "CRUD API for tasks built with clean architecture."
+    "description": "CRUD API for tasks built with clean architecture, including optional recurrence rules."
   },
   "servers": [
     {
@@ -28,8 +28,64 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/Task" }
-                }
+                  "items": {
+                    "$ref": "#/components/schemas/Task"
+                  }
+                },
+                "example": [
+                  {
+                    "id": 3,
+                    "title": "Daily patient calls",
+                    "description": "Call patients every 2 days",
+                    "status": "new",
+                    "created_at": "2026-05-01T00:00:00Z",
+                    "updated_at": "2026-05-01T00:00:00Z",
+                    "recurrence": {
+                      "type": "daily",
+                      "every_n_days": 2,
+                      "start_date": "2026-05-01"
+                    }
+                  },
+                  {
+                    "id": 4,
+                    "title": "Monthly reports",
+                    "description": "Run reports on selected days",
+                    "status": "new",
+                    "created_at": "2026-05-01T00:00:00Z",
+                    "updated_at": "2026-05-01T00:00:00Z",
+                    "recurrence": {
+                      "type": "monthly_days",
+                      "month_days": [5, 15, 30],
+                      "start_date": "2026-05-01"
+                    }
+                  },
+                  {
+                    "id": 5,
+                    "title": "Inventory checks",
+                    "description": "Check stock on fixed dates",
+                    "status": "new",
+                    "created_at": "2026-05-01T00:00:00Z",
+                    "updated_at": "2026-05-01T00:00:00Z",
+                    "recurrence": {
+                      "type": "dates",
+                      "dates": ["2026-05-03", "2026-05-10", "2026-05-17"],
+                      "start_date": "2026-05-01"
+                    }
+                  },
+                  {
+                    "id": 6,
+                    "title": "Even-day reporting",
+                    "description": "Prepare report on even days",
+                    "status": "new",
+                    "created_at": "2026-05-01T00:00:00Z",
+                    "updated_at": "2026-05-01T00:00:00Z",
+                    "recurrence": {
+                      "type": "parity",
+                      "parity": "even",
+                      "start_date": "2026-05-01"
+                    }
+                  }
+                ]
               }
             }
           }
@@ -42,7 +98,45 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateTaskRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskRequest"
+              },
+              "examples": {
+                "simple": {
+                  "summary": "Simple task without recurrence",
+                  "value": {
+                    "title": "Prepare release",
+                    "description": "Collect release notes and check migrations",
+                    "status": "new"
+                  }
+                },
+                "daily": {
+                  "summary": "Task with daily recurrence",
+                  "value": {
+                    "title": "Daily patient calls",
+                    "description": "Call patients every 2 days",
+                    "status": "new",
+                    "recurrence": {
+                      "type": "daily",
+                      "every_n_days": 2,
+                      "start_date": "2026-05-01"
+                    }
+                  }
+                },
+                "monthly_days": {
+                  "summary": "Task with monthly days recurrence",
+                  "value": {
+                    "title": "Monthly reports",
+                    "description": "Run reports on selected days",
+                    "status": "new",
+                    "recurrence": {
+                      "type": "monthly_days",
+                      "month_days": [5, 15, 30],
+                      "start_date": "2026-05-01"
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -51,11 +145,28 @@
             "description": "Created task",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Task" }
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                },
+                "example": {
+                  "id": 6,
+                  "title": "Even-day reporting",
+                  "description": "Prepare report on even days",
+                  "status": "new",
+                  "created_at": "2026-05-01T00:00:00Z",
+                  "updated_at": "2026-05-01T00:00:00Z",
+                  "recurrence": {
+                    "type": "parity",
+                    "parity": "even",
+                    "start_date": "2026-05-01"
+                  }
+                }
               }
             }
           },
-          "400": { "$ref": "#/components/responses/BadRequest" }
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
         }
       }
     },
@@ -68,7 +179,11 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer", "format": "int64", "minimum": 1 }
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
           }
         ],
         "responses": {
@@ -76,11 +191,28 @@
             "description": "Task",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Task" }
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                },
+                "example": {
+                  "id": 3,
+                  "title": "Daily patient calls",
+                  "description": "Call patients every 2 days",
+                  "status": "new",
+                  "created_at": "2026-05-01T00:00:00Z",
+                  "updated_at": "2026-05-01T00:00:00Z",
+                  "recurrence": {
+                    "type": "daily",
+                    "every_n_days": 2,
+                    "start_date": "2026-05-01"
+                  }
+                }
               }
             }
           },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
         }
       },
       "put": {
@@ -91,14 +223,43 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer", "format": "int64", "minimum": 1 }
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
           }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/UpdateTaskRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskRequest"
+              },
+              "examples": {
+                "update_simple": {
+                  "summary": "Update simple task",
+                  "value": {
+                    "title": "Prepare release",
+                    "description": "Collect release notes and check migrations",
+                    "status": "in_progress"
+                  }
+                },
+                "update_recurrence": {
+                  "summary": "Update task recurrence",
+                  "value": {
+                    "title": "Monthly reports",
+                    "description": "Run reports on selected days",
+                    "status": "in_progress",
+                    "recurrence": {
+                      "type": "monthly_days",
+                      "month_days": [5, 15, 30],
+                      "start_date": "2026-05-01"
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -107,12 +268,31 @@
             "description": "Updated task",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Task" }
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                },
+                "example": {
+                  "id": 4,
+                  "title": "Monthly reports",
+                  "description": "Run reports on selected days",
+                  "status": "in_progress",
+                  "created_at": "2026-05-01T00:00:00Z",
+                  "updated_at": "2026-05-02T00:00:00Z",
+                  "recurrence": {
+                    "type": "monthly_days",
+                    "month_days": [5, 15, 30],
+                    "start_date": "2026-05-01"
+                  }
+                }
               }
             }
           },
-          "400": { "$ref": "#/components/responses/BadRequest" },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
         }
       },
       "delete": {
@@ -123,12 +303,20 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer", "format": "int64", "minimum": 1 }
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
           }
         ],
         "responses": {
-          "204": { "description": "Deleted" },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "204": {
+            "description": "Deleted"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
         }
       }
     }
@@ -139,7 +327,12 @@
         "description": "Bad request",
         "content": {
           "application/json": {
-            "schema": { "$ref": "#/components/schemas/Error" }
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "invalid recurrence"
+            }
           }
         }
       },
@@ -147,7 +340,12 @@
         "description": "Resource not found",
         "content": {
           "application/json": {
-            "schema": { "$ref": "#/components/schemas/Error" }
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "task not found"
+            }
           }
         }
       }
@@ -169,6 +367,15 @@
             "type": "string",
             "enum": ["new", "in_progress", "done"],
             "example": "new"
+          },
+          "recurrence": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Recurrence"
+              }
+            ],
+            "nullable": true,
+            "description": "Optional recurrence rule for the task"
           }
         }
       },
@@ -188,14 +395,30 @@
             "type": "string",
             "enum": ["new", "in_progress", "done"],
             "example": "in_progress"
+          },
+          "recurrence": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Recurrence"
+              }
+            ],
+            "nullable": true,
+            "description": "Optional recurrence rule for the task"
           }
         }
       },
       "Task": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer", "format": "int64", "example": 1 },
-          "title": { "type": "string", "example": "Prepare release" },
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "example": "Prepare release"
+          },
           "description": {
             "type": "string",
             "example": "Collect release notes and check migrations"
@@ -214,13 +437,76 @@
             "type": "string",
             "format": "date-time",
             "example": "2026-03-24T00:00:00Z"
+          },
+          "recurrence": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Recurrence"
+              }
+            ],
+            "nullable": true,
+            "description": "Optional recurrence rule for the task"
           }
         }
+      },
+      "Recurrence": {
+        "type": "object",
+        "required": ["type", "start_date"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Recurrence strategy",
+            "enum": ["daily", "monthly_days", "dates", "parity"],
+            "example": "daily"
+          },
+          "every_n_days": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "For daily recurrence: every N days",
+            "example": 2
+          },
+          "month_days": {
+            "type": "array",
+            "description": "For monthly_days: list of month days (1-30)",
+            "items": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30
+            },
+            "example": [5, 15, 30]
+          },
+          "dates": {
+            "type": "array",
+            "description": "For dates: explicit list of dates",
+            "items": {
+              "$ref": "#/components/schemas/Date"
+            },
+            "example": ["2026-05-03", "2026-05-10", "2026-05-17"]
+          },
+          "parity": {
+            "type": "string",
+            "description": "For parity: odd/even days of month",
+            "enum": ["odd", "even"],
+            "example": "even"
+          },
+          "start_date": {
+            "$ref": "#/components/schemas/Date"
+          }
+        }
+      },
+      "Date": {
+        "type": "string",
+        "format": "date",
+        "description": "Date in YYYY-MM-DD format",
+        "example": "2026-05-01"
       },
       "Error": {
         "type": "object",
         "properties": {
-          "error": { "type": "string", "example": "task not found" }
+          "error": {
+            "type": "string",
+            "example": "task not found"
+          }
         }
       }
     }

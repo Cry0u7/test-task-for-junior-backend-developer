@@ -14,7 +14,25 @@ services:
       retries: 10
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./migrations/0001_create_tasks.up.sql:/docker-entrypoint-initdb.d/001_create_tasks.sql:ro
+
+  migrate:
+    image: postgres:16-alpine
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: postgres
+    volumes:
+      - ./migrations:/migrations:ro
+    command: >
+      sh -c '
+        set -e
+        for f in /migrations/*.up.sql; do
+          echo "Applying migration: $$f"
+          psql -h postgres -U postgres -d taskservice -v ON_ERROR_STOP=1 -f "$$f"
+        done
+      '
+    restart: "no"
 
   app:
     build:
@@ -28,6 +46,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
 volumes:
   postgres_data:
